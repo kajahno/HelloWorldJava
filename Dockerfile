@@ -1,8 +1,16 @@
-FROM java
+FROM maven:3-alpine as builder
 
-COPY ./build/libs/* /app/
+WORKDIR /code
 
-EXPOSE 8080/tcp
+COPY . .
+
+RUN mvn clean install
+
+FROM java:alpine
+
+COPY --from=builder /code/target/HelloWorldJava-0.0.1-SNAPSHOT.jar /
+
+EXPOSE 80/tcp
 
 ENTRYPOINT ["java"]
-CMD ["-jar", "/app/HelloWorldJava-0.1.0.jar"]
+CMD ["-jar", "HelloWorldJava-0.0.1-SNAPSHOT.jar", "--server.port=80"]
